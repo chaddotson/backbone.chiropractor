@@ -110,9 +110,6 @@
             });
         }
 
-        func
-
-
         function _dumpListeners() {
             console.log("Dumping listeners");
             console.log(_records);
