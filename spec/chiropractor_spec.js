@@ -20,7 +20,7 @@ describe("Backbone Chiropractor startup and shutdown", function () {
 });
 
 
-describe("Backbone Chiropractor Wrapping Functionality", function () {
+describe("Backbone Chiropractor Events Function Wrapper", function () {
     var wrapped;
 
     beforeEach(function () {
@@ -39,7 +39,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
         expect(Backbone.Chiropractor).toBeDefined();
     });
 
-    it("it should wrap Backbone.Events trigger.", function () {
+    it("should wrap Backbone.Events trigger.", function () {
 
         var listener = _.extend({}, Backbone.Events);
             triggerer = _.extend({}, Backbone.Events);
@@ -50,7 +50,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
 
     });
 
-    it("it should wrap Backbone.Events listenTo.", function () {
+    it("should wrap Backbone.Events listenTo.", function () {
 
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
@@ -65,7 +65,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
     });
 
 
-    it("it should wrap Backbone.Events listenTo with several events.", function () {
+    it("should wrap Backbone.Events listenTo with several events.", function () {
 
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
@@ -80,7 +80,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
     })
 
 
-    it("it should wrap Backbone.Events listenToOnce.", function () {
+    it("should wrap Backbone.Events listenToOnce.", function () {
 
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
@@ -94,7 +94,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
 
     });
 
-    it("it should wrap Backbone.Events stopListening with no arguments.", function () {
+    it("should wrap Backbone.Events stopListening with no arguments.", function () {
 
         var listener = _.extend({}, Backbone.Events);
 
@@ -105,7 +105,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
     });
 
 
-    it("it should wrap Backbone.Events stopListening with arguments.", function () {
+    it("should wrap Backbone.Events stopListening with arguments.", function () {
 
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
@@ -119,7 +119,7 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
     });
 
 
-    it("it should fire a trigger event if an object's trigger method is called.", function () {
+    it("should fire a trigger event if an object's trigger method is called.", function () {
 
         var triggerer = _.extend({}, Backbone.Events);
 
@@ -147,15 +147,23 @@ describe("Backbone Chiropractor Wrapping Functionality", function () {
     });
 
 
-    it("it should be able to dump listeners.", function () {
+    it("should be able to dump listeners.", function () {
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
+            listenee2 = _.extend({}, Backbone.Events);
 
 
         var callback = jasmine.createSpy('callback');
 
         listener.listenTo(listenee, "test", callback);
 
+
+
+        console.log("Listenee", Backbone.Chiropractor.getListeners(listenee));
+        console.log("Listenee2", Backbone.Chiropractor.getListeners(listenee2));
+
+
+        console.log("----------------------------------");
         Backbone.Chiropractor.dumpListeners();
     });
 });
