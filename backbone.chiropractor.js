@@ -34,6 +34,8 @@
         var instance;
 
 
+        var _records = [];
+
         var _trackers = {};
         var _source;
 
@@ -102,20 +104,27 @@
             Events = Backbone.Events = _source;
         }
 
+        function _getListeners(obj) {
+            return _records.filter(function(element) {
+                return element.listenee == obj;
+            });
+        }
+
+        func
 
 
         function _dumpListeners() {
             console.log("Dumping listeners");
-            console.log(_trackers);
+            console.log(_records);
             //console.log(Object.keys(_trackers).length);
 
-            for(var listenerId in _trackers) {
-                for(var listeneeId in _trackers[listenerId]) {
-                    for(var event in _trackers[listenerId][listeneeId]) {
-                        console.log(listenerId, listeneeId, event, _trackers[listenerId][listeneeId][event].stack);
-                    }
-                }
-            }
+            //for(var listenerId in _trackers) {
+            //    for(var listeneeId in _trackers[listenerId]) {
+            //        for(var event in _trackers[listenerId][listeneeId]) {
+            //            console.log(listenerId, listeneeId, event, _trackers[listenerId][listeneeId][event].stack);
+            //        }
+            //    }
+            //}
         }
 
         function _addTracker(listener, listenee, event, stackOnCreation) {
@@ -123,6 +132,16 @@
 
             var listenerId = listener._listenId;
             var listeneeId = listenee._listenId;
+
+            _records.push({
+                listener: listener,
+                listenee: listenee,
+                event: event,
+                stack: stackOnCreation
+            });
+
+
+
 
             _trackers[listenerId] = _trackers[listenerId] || {};
             _trackers[listenerId][listeneeId] = _trackers[listenerId][listeneeId] || {};
@@ -150,6 +169,7 @@
                 start: _start,
                 stop: _stop,
                 dumpListeners: _dumpListeners,
+                getListeners: _getListeners
             };
         }
 
