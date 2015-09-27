@@ -1,29 +1,34 @@
 {
-  "name": "backbone.chiropractor",
-  "version": "0.0.1",
-  "description": "A tool to help identify and debug orphaned backbone.js events.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/chaddotson/backbone.chiropractor.git"
-  },
-  "keywords": [
-    "backbone",
-    "backbone.js",
-    "backbone",
-    "events"
-  ],
-  "author": "Chad Dotson",
-  "license": "",
-  "bugs": {
-    "url": "https://github.com/chaddotson/backbone.chiropractor/issues"
-  },
-  "homepage": "https://github.com/chaddotson/backbone.chiropractor#readme",
-  "dependencies": {
-    "connect": "^3.4.0",
-    "serve-static": "^1.10.0"
-  }
+    "name": "backbone.chiropractor",
+    "version": "0.0.1",
+    "description": "A tool to help identify and debug orphaned backbone.js events.",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "node_modules/uglifyjs/bin/uglifyjs backbone.chiropractor.js --mangle --source-map backbone.chiropractor-min.map -o backbone.chiropractor-min.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/chaddotson/backbone.chiropractor.git"
+    },
+    "keywords": [
+        "backbone",
+        "backbone.js",
+        "backbone",
+        "events"
+    ],
+    "author": "Chad Dotson",
+    "license": "",
+    "bugs": {
+        "url": "https://github.com/chaddotson/backbone.chiropractor/issues"
+    },
+    "homepage": "https://github.com/chaddotson/backbone.chiropractor#readme",
+    "dependencies"  : {
+        "underscore"  : ">=1.8.3"
+    },
+    "devDependencies": {
+        "connect": "^3.4.0",
+        "serve-static": "^1.10.0",
+        "uglify": "^0.1.5"
+    }
 }
