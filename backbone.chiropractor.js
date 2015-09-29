@@ -39,9 +39,23 @@
         var _trackers = {};
         var _source;
 
+        var _self;
+
+
+
+
         function _start() {
 
+            var _self = this;
+
+            function _doSelfTrigger() {
+                console.log("TRIGGER on Backbone.Chiropractor ---------------------------------------------");
+                _self.trigger("trigger", arguments);
+            };
+
+
             _source = _.extend({}, Backbone.Events);
+
             Events = Backbone.Events = {
                 on: function () {
                     console.log("in on");
@@ -54,7 +68,7 @@
                 trigger: function() {
                     console.log("in trigger",_self);
                     _source.trigger.apply(this, arguments);
-                    _self.trigger("trigger", arguments);
+                    _doSelfTrigger();
                 },
                 listenTo: function (obj, name, callback) {
                     var self = this;
@@ -81,6 +95,8 @@
                             _addTracker(self, obj, names[i], stack)
                         }
                     }
+
+                    console.log("-------------- Done wiring up listener --------------")
                 },
                 once: function () {
                     console.log("in once");
@@ -98,10 +114,15 @@
                     _source.stopListening.apply(this, arguments);
                 }
             };
+
+            _.extend(Backbone.Model.prototype, Events);
         }
-    //
+
         function _stop() {
             Events = Backbone.Events = _source;
+            _.extend(Backbone.Model.prototype, Events);
+
+            _records = [];
         }
 
         function _getListeners(obj) {
@@ -125,7 +146,7 @@
         }
 
         function _addTracker(listener, listenee, event, stackOnCreation) {
-            console.log("listener", listener._listenId, "listenee", listenee._listenId);
+            console.log("listener", listener, "listenee", listenee);
 
             var listenerId = listener._listenId;
             var listeneeId = listenee._listenId;
@@ -181,9 +202,10 @@
 
     })();
 
-    _.extend(BackboneOrphanDetector.getInstance(), Backbone.Events);
+    console.log("Before:", BackboneOrphanDetector.getInstance());
 
-    console.log("Here:", BackboneOrphanDetector.getInstance());
+    _.extend(BackboneOrphanDetector.getInstance(), Backbone.Events);
+    console.log("After:", BackboneOrphanDetector.getInstance());
 
     return BackboneOrphanDetector.getInstance();
 
