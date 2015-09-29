@@ -33,7 +33,7 @@
     var BackboneOrphanDetector =  (function() {
         var instance;
 
-        var _records = [];
+        var _trackingRecords = [];
         var _source;
 
         function _start() {
@@ -73,19 +73,37 @@
                     }
                 },
                 once: function () {
-                    console.log("in once");
+                    //console.log("in once");
                     source.once.apply(this, arguments);
                 },
 
                 listenToOnce: function () {
-                    console.log("in listenToOnce");
+                    //console.log("in listenToOnce");
                     _source.listenToOnce.apply(this, arguments);
                 },
 
-                stopListening: function () {
-                    console.log("in stopListening", this._listenId);
-                    _removeTracker(this._listenId);
+                stopListening: function (obj, name, callback) {
+                    //console.log("in stopListening", this._listenId);
+                    var self = this;
+
                     _source.stopListening.apply(this, arguments);
+
+                    if(_.isObject(name)) {
+                        _.each(_.keys(name), function (event) {
+                            _removeTracker(self, obj, event, stack);
+                        });
+                    } else if(name) {
+                        var eventSplitter = /\s+/;
+
+                        var names = name.split(eventSplitter);
+
+                        for(var i = 0; i < names.length; i++) {
+                            _removeTracker(self, obj, names[i])
+                        }
+                    } else {
+                        _removeTracker(self, listenee)
+                    }
+
                 }
             };
 
@@ -96,24 +114,24 @@
             Events = Backbone.Events = _source;
             _.extend(Backbone.Model.prototype, Events);
 
-            _records = [];
+            _trackingRecords = [];
         }
 
         function _getListeners(obj) {
-            return _records.filter(function(element) {
+            return _trackingRecords.filter(function(element) {
                 return element.listenee == obj;
             });
         }
 
         function _dumpListeners() {
             console.log("Listeners");
-            console.log(_records);
+            console.log(_trackingRecords);
         }
 
         function _addTracker(listener, listenee, event, stackOnCreation) {
             console.log("listener", listener, "listenee", listenee);
 
-            _records.push({
+            _trackingRecords.push({
                 listener: listener,
                 listenee: listenee,
                 event: event,
@@ -121,9 +139,33 @@
             });
         }
 
-        function _removeTracker(id) {
+        function _removeTracker(listener, listenee, event) {
+            _trackingRecords = _.reject(_trackingRecords, function(element) {
 
-            //delete _trackers[id];
+                var stat = true;
+
+
+                if(listener) {
+                    console.log("listener", element.listener === listener);
+
+
+                    stat = stat && element.listener === listener;
+                }
+
+                if(stat && listenee) {
+                    console.log("listenee", element.listenee === listenee);
+                    stat = stat && element.listenee === listenee;
+                }
+
+                if(stat && event) {
+                    console.log("event", element.event === event);
+                    stat = stat && element.event === event;
+                }
+
+                console.log( stat, element);
+
+                return stat;
+            });
         }
 
         function init() {

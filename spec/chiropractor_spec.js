@@ -105,6 +105,9 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
     });
 
 
+
+
+
     it("should wrap Backbone.Events stopListening with arguments.", function () {
 
         var listener = _.extend({}, Backbone.Events);
@@ -129,9 +132,6 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
 
     });
 
-
-
-
 });
 
 
@@ -144,7 +144,6 @@ describe("Backbone Chiropractor", function () {
     afterEach(function () {
         Backbone.Chiropractor.stop();
     });
-
 
     it("should be able to retrieve listeners for an event.", function () {
         var listener = _.extend({}, Backbone.Events);
@@ -167,5 +166,66 @@ describe("Backbone Chiropractor", function () {
         listener.stopListening();
 
     });
+
+
+    it("should not return any listeners for an event on an object with no listeners.", function () {
+        var listenee = _.extend({}, Backbone.Events);
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(0);
+
+    });
+
+
+    it("should remove trackers on stopListening().", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+
+
+        listener.listenTo(listener, "test", function () {});
+
+        listener.stopListening();
+
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(0);
+
+    });
+
+    it("should remove trackers on stopListening(listenee).", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        listener.listenTo(listenee, "test test2", function () {});
+
+        listener.stopListening(listenee);
+
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(0);
+
+    });
+
+
+    it("should remove trackers on stopListening(listenee, 'event').", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        listener.listenTo(listenee, "test test2", function () {});
+
+        listener.stopListening(listenee, "test");
+
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(1);
+
+    });
+
+
 
 });
