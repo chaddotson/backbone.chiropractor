@@ -11,7 +11,7 @@ What works:
 * stopListening
 * getListeners
 
-What doesn't work:
+What doesn't work fully:
 * on
 * off
 * once
