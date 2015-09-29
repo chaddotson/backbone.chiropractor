@@ -23,11 +23,12 @@
         "url": "https://github.com/chaddotson/backbone.chiropractor/issues"
     },
     "homepage": "https://github.com/chaddotson/backbone.chiropractor#readme",
-    "dependencies"  : {
-        "underscore"  : ">=1.8.3"
+    "dependencies": {
+        "underscore": ">=1.8.3"
     },
     "devDependencies": {
         "connect": "^3.4.0",
+        "jasmine-node": "^1.14.5",
         "serve-static": "^1.10.0",
         "uglify": "^0.1.5"
     }
