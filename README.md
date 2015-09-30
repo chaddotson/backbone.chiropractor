@@ -5,13 +5,14 @@ A tool to help identify and debug orphaned backbone.js events.
 Status: Not functional - Currently under development.
 
 
-What works:
+Mostly works (Missing independent callback tracking):
 * listenTo
 * listenToOnce
 * stopListening
 * getListeners
 
-What doesn't work fully:
+Partially works:
 * on
 * off
 * once
+
