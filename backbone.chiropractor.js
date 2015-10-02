@@ -60,7 +60,7 @@
 
                     if(_.isObject(name)) {
                         _.each(_.keys(name), function (event) {
-                            _addTracker(_self, obj, event, stack);
+                            _addTracker(_self, obj, event, callback, stack);
                         });
                     } else {
                         var eventSplitter = /\s+/;
@@ -68,7 +68,7 @@
                         var names = name.split(eventSplitter);
 
                         for(var i = 0; i < names.length; i++) {
-                            _addTracker(self, obj, names[i], stack)
+                            _addTracker(self, obj, names[i], callback, stack)
                         }
                     }
                 },
@@ -90,7 +90,7 @@
 
                     if(_.isObject(name)) {
                         _.each(_.keys(name), function (event) {
-                            _removeTracker(self, obj, event, stack);
+                            _removeTracker(self, obj, event, callback);
                         });
                     } else if(name) {
                         var eventSplitter = /\s+/;
@@ -98,13 +98,14 @@
                         var names = name.split(eventSplitter);
 
                         for(var i = 0; i < names.length; i++) {
-                            _removeTracker(self, obj, names[i])
+                            _removeTracker(self, obj, names[i], callback)
                         }
                     } else {
                         _removeTracker(self, listenee)
                     }
 
                 }
+
             };
 
             _.extend(Backbone.Model.prototype, Events);
@@ -128,18 +129,19 @@
             console.log(_trackingRecords);
         }
 
-        function _addTracker(listener, listenee, event, stackOnCreation) {
+        function _addTracker(listener, listenee, event, callback, stackOnCreation) {
             console.log("listener", listener, "listenee", listenee);
 
             _trackingRecords.push({
                 listener: listener,
                 listenee: listenee,
                 event: event,
+                callback: callback,
                 stack: stackOnCreation
             });
         }
 
-        function _removeTracker(listener, listenee, event) {
+        function _removeTracker(listener, listenee, event, callback) {
             _trackingRecords = _.reject(_trackingRecords, function(element) {
 
                 var stat = true;
@@ -160,6 +162,11 @@
                 if(stat && event) {
                     console.log("event", element.event === event);
                     stat = stat && element.event === event;
+                }
+
+                if(stat && callback) {
+                    console.log("event", element.callback === callback);
+                    stat = stat && element.callback === callback;
                 }
 
                 console.log( stat, element);

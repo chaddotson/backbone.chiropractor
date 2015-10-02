@@ -24,7 +24,7 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
     var wrapped;
 
     beforeEach(function () {
-        wrapped = jasmine.createSpyObj('Backbone.Events', ['listenTo', 'listenToOnce', 'trigger', 'stopListening']);
+        wrapped = jasmine.createSpyObj('Backbone.Events', ['listenTo', 'listenToOnce', 'trigger', 'stopListening', 'on', 'off', 'once']);
         Backbone.Events =  wrapped;
         Backbone.Chiropractor.start();
 
@@ -64,6 +64,21 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
 
     });
 
+    it("should wrap Backbone.Events on.", function () {
+
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+
+        var callback = jasmine.createSpy('callback');
+
+        listener.on(listenee, "test", callback);
+
+        expect(wrapped.on).toHaveBeenCalledWith(listenee, "test", callback);
+
+    });
+
+
 
     it("should wrap Backbone.Events listenTo with several events.", function () {
 
@@ -78,6 +93,24 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
         expect(wrapped.listenTo).toHaveBeenCalledWith(listenee, "test test1", callback);
 
     });
+
+    // test can track events with callback.
+    // can stop listening to events given a callback.
+
+    it("should wrap Backbone.Events on with several events.", function () {
+
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+
+        var callback = jasmine.createSpy('callback');
+
+        listener.on(listenee, "test test1", callback);
+
+        expect(wrapped.on).toHaveBeenCalledWith(listenee, "test test1", callback);
+
+    });
+
 
 
     it("should wrap Backbone.Events listenToOnce.", function () {
