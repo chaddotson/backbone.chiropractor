@@ -43,11 +43,49 @@
             _source = _.extend({}, Backbone.Events);
 
             Events = Backbone.Events = {
-                on: function () {
+                on: function (name, callback, context) {
                     _source.on.apply(this, arguments);
+
+                    var self = this;
+                    var stack = Error().stack;
+
+                    if(_.isObject(name)) {
+                        _.each(_.keys(name), function (event) {
+                            _addTracker(context, self, event, callback, stack);
+                        });
+                    } else {
+                        var eventSplitter = /\s+/;
+
+                        var names = name.split(eventSplitter);
+
+                        for(var i = 0; i < names.length; i++) {
+                            _addTracker(context,  self, names[i], callback, stack)
+                        }
+                    }
+
+
                 },
-                off: function () {
+                off: function (name, callback, context) {
                     _source.off.apply(this, arguments);
+                    var self = this;
+
+                    if(_.isObject(name)) {
+                        _.each(_.keys(name), function (event) {
+                            _removeTracker(context, self, event, callback);
+                        });
+                    } else if(name) {
+                        var eventSplitter = /\s+/;
+
+                        var names = name.split(eventSplitter);
+
+                        for(var i = 0; i < names.length; i++) {
+                            _removeTracker(context, self, names[i], callback)
+                        }
+                    } else {
+                        _removeTracker(self, listenee)
+                    }
+
+
                 },
                 trigger: function() {
                     _source.trigger.apply(this, arguments);
