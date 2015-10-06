@@ -139,7 +139,7 @@
                             _removeTracker(self, obj, names[i], callback)
                         }
                     } else {
-                        _removeTracker(self, listenee)
+                        _removeTracker(self, listenee, name, callback)
                     }
 
                 }
@@ -187,8 +187,6 @@
 
                 if(listener) {
                     console.log("listener", element.listener === listener);
-
-
                     stat = stat && element.listener === listener;
                 }
 
@@ -207,7 +205,7 @@
                     stat = stat && element.callback === callback;
                 }
 
-                console.log( stat, element);
+                console.log("stat =", stat);
 
                 return stat;
             });

@@ -1,9 +1,13 @@
 
 
+function createBackboneEventsSpy() {
+    return jasmine.createSpyObj('Backbone.Events', ['listenTo', 'listenToOnce', 'trigger', 'stopListening', 'on', 'off', 'once']);
+}
+
 describe("Backbone Chiropractor startup and shutdown", function () {
 
     it("should wrap the original Backbone.Events on start.", function () {
-        var wrapped = jasmine.createSpyObj('Backbone.Events', ['listenTo', 'listenToOnce', 'trigger', 'stopListening']);
+        var wrapped = createBackboneEventsSpy();
         Backbone.Events =  wrapped;
         Backbone.Chiropractor.start();
         expect(Backbone.Events).not.toEqual(wrapped);
@@ -11,7 +15,7 @@ describe("Backbone Chiropractor startup and shutdown", function () {
     });
 
     it("should restore the original Backbone.Events on stop.", function () {
-        var wrapped = jasmine.createSpyObj('Backbone.Events', ['listenTo', 'listenToOnce', 'trigger', 'stopListening']);
+        var wrapped = createBackboneEventsSpy();
         Backbone.Events =  wrapped;
         Backbone.Chiropractor.start();
         Backbone.Chiropractor.stop();
@@ -20,7 +24,7 @@ describe("Backbone Chiropractor startup and shutdown", function () {
 });
 
 
-describe("Backbone Chiropractor Events Function Wrapper", function () {
+describe("Backbone Chiropractor Events", function () {
     var wrapped;
 
     beforeEach(function () {
@@ -78,6 +82,20 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
 
     });
 
+    it("should wrap Backbone.Events off.", function () {
+
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+
+        var callback = jasmine.createSpy('callback');
+
+        listener.on(listenee, "test", callback);
+        listener.off( "test", callback);
+
+        expect(wrapped.off).toHaveBeenCalledWith("test", callback);
+
+    });
 
 
     it("should wrap Backbone.Events listenTo with several events.", function () {
@@ -112,7 +130,6 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
     });
 
 
-
     it("should wrap Backbone.Events listenToOnce.", function () {
 
         var listener = _.extend({}, Backbone.Events);
@@ -136,9 +153,6 @@ describe("Backbone Chiropractor Events Function Wrapper", function () {
         expect(wrapped.stopListening).toHaveBeenCalledWith();
 
     });
-
-
-
 
 
     it("should wrap Backbone.Events stopListening with arguments.", function () {
@@ -178,43 +192,100 @@ describe("Backbone Chiropractor", function () {
         Backbone.Chiropractor.stop();
     });
 
-    it("should be able to retrieve listeners for an event.", function () {
-        var listener = _.extend({}, Backbone.Events);
-            listener2 = _.extend({}, Backbone.Events);
-            listenee = _.extend({}, Backbone.Events);
-            listenee2 = _.extend({}, Backbone.Events);
 
-        var callback = jasmine.createSpy('callback');
-
-        listener.listenTo(listenee, "test", callback);
-
-
-        var listeners = Backbone.Chiropractor.getListeners(listenee);
-        var listeners2 = Backbone.Chiropractor.getListeners(listenee2);
-
-        expect(listeners.length).toEqual(1);
-        expect(listeners[0].listener).toEqual(listener);
-        expect(listeners2.length).toEqual(0);
-
-        listener.stopListening();
-
-    });
-
-
-    it("should not return any listeners for an event on an object with no listeners.", function () {
+    it("should not return any listeners for an object/event with no listeners.", function () {
         var listenee = _.extend({}, Backbone.Events);
 
         var listeners = Backbone.Chiropractor.getListeners(listenee);
 
         expect(listeners.length).toEqual(0);
+    });
 
+
+    it("should be able to track listeners for a single event using listenTo.", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        var callback = jasmine.createSpy('callback');
+
+        listener.listenTo(listenee, "test", callback);
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(1);
+
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test",
+            callback: callback
+        }));
+
+        listener.stopListening();
+    });
+
+    it("should be able to track  multiple callbacks on a single event using using listenTo.", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        var callback = jasmine.createSpy('callback');
+        var callback2 = jasmine.createSpy('callback');
+
+        listener.listenTo(listenee, "test", callback);
+        listener.listenTo(listenee, "test", callback2);
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(2);
+
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test",
+            callback: callback
+        }));
+
+        expect(listeners[1]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test",
+            callback: callback2
+        }));
+
+        listener.stopListening();
+    });
+
+    it("should be able to track listeners for a multiple events using listenTo.", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+
+        var callback = jasmine.createSpy('callback');
+
+        listener.listenTo(listenee, "test test1", callback);
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(2);
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test"
+        }));
+
+        expect(listeners[1]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test1"
+        }));
+
+        listener.stopListening();
     });
 
 
     it("should remove trackers on stopListening().", function () {
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
-
 
 
         listener.listenTo(listener, "test", function () {});
@@ -248,16 +319,107 @@ describe("Backbone Chiropractor", function () {
         var listener = _.extend({}, Backbone.Events);
             listenee = _.extend({}, Backbone.Events);
 
-        listener.listenTo(listenee, "test test2", function () {});
+        var callback = function () {};
+        listener.listenTo(listenee, "test test2", callback);
 
         listener.stopListening(listenee, "test");
 
 
         var listeners = Backbone.Chiropractor.getListeners(listenee);
 
+
         expect(listeners.length).toEqual(1);
 
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test2",
+            callback: callback
+        }));
+
+
     });
+
+    it("should remove trackers on stopListening(undefined, 'event').", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        var callback = function () {};
+        listener.listenTo(listenee, "test test2", callback);
+
+        listener.stopListening(undefined, "test");
+
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+
+        expect(listeners.length).toEqual(1);
+
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test2",
+            callback: callback
+        }));
+
+
+    });
+
+
+
+    it("should remove trackers on stopListening(listenee, 'event', callback).", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        var callback = function () {};
+        var callback2 = function () {};
+
+        listener.listenTo(listenee, "test", callback);
+        listener.listenTo(listenee, "test", callback2);
+
+        listener.stopListening(listenee, "test", callback2);
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(1);
+
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test",
+            callback: callback
+        }));
+
+
+    });
+
+
+    it("should remove trackers on stopListening(undefined, undefined, callback).", function () {
+        var listener = _.extend({}, Backbone.Events);
+            listenee = _.extend({}, Backbone.Events);
+
+        var callback = function () {};
+        var callback2 = function () {};
+
+        listener.listenTo(listenee, "test", callback);
+        listener.listenTo(listenee, "test", callback2);
+
+        listener.stopListening(undefined, undefined, callback2);
+
+        var listeners = Backbone.Chiropractor.getListeners(listenee);
+
+        expect(listeners.length).toEqual(1);
+
+        expect(listeners[0]).toEqual(jasmine.objectContaining({
+            listener: listener,
+            listenee: listenee,
+            event: "test",
+            callback: callback
+        }));
+    });
+
+
+    // on/listenTo should track multiple events.
 
 
 
