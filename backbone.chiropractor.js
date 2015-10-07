@@ -114,12 +114,10 @@
                     //console.log("in once");
                     source.once.apply(this, arguments);
                 },
-
                 listenToOnce: function () {
                     //console.log("in listenToOnce");
                     _source.listenToOnce.apply(this, arguments);
                 },
-
                 stopListening: function (obj, name, callback) {
                     //console.log("in stopListening", this._listenId);
                     var self = this;
@@ -139,11 +137,10 @@
                             _removeTracker(self, obj, names[i], callback)
                         }
                     } else {
-                        _removeTracker(self, listenee, name, callback)
+                        _removeTracker(self, obj, name, callback)
                     }
 
                 }
-
             };
 
             _.extend(Backbone.Model.prototype, Events);
